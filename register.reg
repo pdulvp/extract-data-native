@@ -1,0 +1,12 @@
+Windows Registry Editor Version 5.00
+[HKEY_CURRENT_USER\Software\Google\Chrome\NativeMessagingHosts\extractdata.nativeMessaging]
+@="C:\\Works\\extract-data-native\\manifest.json"
+
+[HKEY_CURRENT_USER\Software\Microsoft\Edge\NativeMessagingHosts\extractdata.nativeMessaging]
+@="C:\\Works\\extract-data-native\\manifest.json"
+
+[HKEY_CURRENT_USER\Software\Mozilla\NativeMessagingHosts\extractdata.nativeMessaging]
+@="C:\\Works\\extract-data-native\\manifest.json"
+
+[HKEY_LOCAL_MACHINE\Software\Mozilla\NativeMessagingHosts\extractdata.nativeMessaging]
+@="C:\\Works\\extract-data-native\\manifest.json"

@@ -1,0 +1,8 @@
+{
+  "name": "extractdata.nativeMessaging",
+  "description": "Extract Data Native",
+  "path": "C:\\Works\\extract-data-native\\app.bat",
+  "type": "stdio",
+  "allowed_extensions": [ "extract-data@pdulvp" ]
+  
+}
