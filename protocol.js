@@ -1,7 +1,7 @@
 
-var fsq = require("./fsquery");
+var fsh = require("@pdulvp/fsh");
 
-module.exports = (handleMessage) => {
+module.exports = () => {
 
   let input = Buffer.from("");
   let msgLength = [];
@@ -12,10 +12,10 @@ module.exports = (handleMessage) => {
   });
 
   let logIndex = 0;
-  fsq.clean("log");
+  fsh.write("log", "");
 
   function log(message) {
-    fsq.write("log", logIndex+": "+message);
+    fsh.append("log", logIndex+": "+message);
     logIndex++;
   }
 
@@ -32,7 +32,11 @@ module.exports = (handleMessage) => {
     return Buffer.concat([buffer, Buffer.concat(chunks)]);
   }
 
-  function proceedInput() {
+  function addMessage(json) {
+    input = Buffer.concat([input, Buffer.from(encodeMessage(json))]);
+  }
+
+  function proceedInput(handle = handleMessage) {
     while (input.length >= 4) {
       let input3 = input.toString();
       if (input3.length >= 4 && input3.charAt(0)!='[' && input3.charAt(0)!='{' && input3.charAt(0)!='(') {
@@ -46,36 +50,46 @@ module.exports = (handleMessage) => {
         let content = input.slice(0, len);
         input = input.slice(len);
         log("content: "+ content);
-        handleMessage(JSON.parse(content.toString()));
+        handle(JSON.parse(content.toString()));
       }
     }
   }
 
-  process.stdin.on('readable', () => {
-  try {
-    //log("readable:");
-    input = appendChunks(input, getStdinChunks());
-    proceedInput();
 
-  } catch (e) {
-    log("error:"+e);
+  function start(handle = handleMessage) {
+    process.stdin.on('readable', () => {
+      try {
+        //log("readable:");
+        input = appendChunks(input, getStdinChunks());
+        proceedInput(handle);
+  
+      } catch (e) {
+        log("error:"+e);
+      }
+    });
   }
-  });
 
-    function sendMessage (msg) {
-      var buffer = Buffer.from(JSON.stringify(msg));
-  
-      var header = Buffer.alloc(4);
-      header.writeUInt32LE(buffer.length, 0);
-  
-      var data = Buffer.concat([header, buffer]);
-      process.stdout.write(data);
+  function encodeMessage(msg) {
+    var buffer = Buffer.from(JSON.stringify(msg));
+
+    var header = Buffer.alloc(4);
+    header.writeUInt32LE(buffer.length, 0);
+
+    var data = Buffer.concat([header, buffer]);
+    return data;
+  }
+    function sendMessage(msg) {
+      process.stdout.write(encodeMessage(msg));
     }
   
     process.on('uncaughtException', (err) => {
       sendMessage({error: err.toString()});
     });
   
-    return sendMessage;
-  
+    return {
+      sendMessage: sendMessage,
+      proceedInput: proceedInput,
+      addMessage: addMessage,
+      start: start
+    };
   }
